@@ -139,9 +139,28 @@ def move_cubes():
         i[0] = i[0] + x_move
         i[1] = i[1] + y_move
 
-def collision_check():
+def collision_check(x,y):
     for i in cubelist:
-        x = 0
+        if(x + cube_width - i[0] < 0)  and (x + cube_width - i[0] >= -8):
+            if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
+                print("left hit!")
+
+        if(x - (i[0] + spawnwidth) < 0)  and (x - (i[0] + spawnwidth) >= -8):
+            if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
+                print("right hit!")
+
+        if(y + cube_height - i[1] < 0)  and (y + cube_height - i[1] >= -8):
+            if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
+                print("top hit!")
+
+        if(y - (i[1] + spawnheight) < 0)  and (y - (i[1] + spawnheight) >= -8):
+            if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
+                print ("bottom hit!")
+
+        
+
+
+
 
 def lower_cooldowns():
     for i in cubelist:
@@ -172,7 +191,7 @@ def menu():
 
     gameExit = False
     
-    text = font.render('High Score: ', True, black, white)
+    text = font.render('High Score: ' + str(zinger), True, black, white)
     textRect = text.get_rect()
     textRect.center = (600, 550)
 
@@ -253,6 +272,8 @@ def game_loop():
         if ticks % 60 == 0 and ticks != 0:
             score += 1
             print(score)
+        
+        collision_check(x,y)
         
         
         y += y_change
