@@ -6,6 +6,7 @@ pygame.init()
 
 cubelist = []
 score = 0
+zinger = 0
 
 
 display_width = 800
