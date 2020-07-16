@@ -25,15 +25,23 @@ white = (255,255,255)
 red = (255, 0, 0)
 
 playerImg = pygame.image.load('Assets/playercube.png')
+menuImg = pygame.image.load('Assets/MenuImage.png')
 cube_height = 60
 cube_width = 60
+
+font = pygame.font.Font('Assets/unispace.ttf', 26)
+
 
 def player(x,y):
     gameDisplay.blit(playerImg, (x,y))
 
+def draw_menu():
+    gameDisplay.blit(menuImg, (0,0))
+
 def generate_cubes():
     i = 1
     cubeproperties = []
+    
     while i <= difficulty:
         cubeproperties.append(random.randint(0, display_width - spawnwidth))
         cubeproperties.append(random.randint(0, display_height - spawnheight))
@@ -131,6 +139,29 @@ def move_cubes():
         i[0] = i[0] + x_move
         i[1] = i[1] + y_move
 
+def collision_check(x,y):
+    for i in cubelist:
+        if(x + cube_width - i[0] < 0)  and (x + cube_width - i[0] >= -8):
+            if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
+                print("left hit!")
+
+        if(x - (i[0] + spawnwidth) < 0)  and (x - (i[0] + spawnwidth) >= -8):
+            if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
+                print("right hit!")
+
+        if(y + cube_height - i[1] < 0)  and (y + cube_height - i[1] >= -8):
+            if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
+                print("top hit!")
+
+        if(y - (i[1] + spawnheight) < 0)  and (y - (i[1] + spawnheight) >= -8):
+            if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
+                print ("bottom hit!")
+
+        
+
+
+
+
 def lower_cooldowns():
     for i in cubelist:
         if i[4] > 0:
@@ -156,7 +187,33 @@ def ceilingbounce(bounce_cube):
     bounce_cube[1] += 2
     return bounce_cube
 
+def menu():
 
+    gameExit = False
+    
+    text = font.render('High Score: ' + str(zinger), True, black, white)
+    textRect = text.get_rect()
+    textRect.center = (600, 550)
+
+    while not gameExit:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameExit = true
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_loop()
+        
+        gameDisplay.fill(white)
+        draw_menu()
+        gameDisplay.blit(text, textRect)
+        
+        
+        pygame.display.update()
+        clock.tick(60)
+    
+    
 def game_loop():
     x =  (display_width * 0.45)
     y = (display_height * 0.8)
@@ -174,6 +231,7 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
+                quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
@@ -184,6 +242,11 @@ def game_loop():
                     x_change = -5
                 elif event.key == pygame.K_RIGHT:
                     x_change = 5
+
+                if event.key == pygame.K_ESCAPE:
+                    del cubelist[:]
+                    gameExit = True
+                    
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
@@ -208,8 +271,10 @@ def game_loop():
         
         if ticks % 60 == 0 and ticks != 0:
             score += 1
-
-        print(score)
+            print(score)
+        
+        collision_check(x,y)
+        
         
         y += y_change
         x += x_change
@@ -223,7 +288,6 @@ def game_loop():
                 
         pygame.display.update()
         clock.tick(60)
-
-game_loop()
+menu()
 pygame.quit()
 quit()
