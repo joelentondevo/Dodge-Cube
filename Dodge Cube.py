@@ -140,7 +140,7 @@ def move_cubes():
 
 def collision_check():
     for i in cubelist:
-        
+        x = 0
 
 def lower_cooldowns():
     for i in cubelist:
