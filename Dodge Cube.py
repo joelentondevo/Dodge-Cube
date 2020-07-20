@@ -11,12 +11,13 @@ zinger = 0
 
 display_width = 800
 display_height = 600
+score_display_height = 650
 
 spawnwidth = 80
 spawnheight = 80
 difficulty = 3
 
-gameDisplay = pygame.display.set_mode((display_width,display_height))
+gameDisplay = pygame.display.set_mode((display_width,score_display_height))
 pygame.display.set_caption('Dodge Cube')
 clock = pygame.time.Clock()
 
@@ -30,6 +31,7 @@ cube_height = 60
 cube_width = 60
 
 font = pygame.font.Font('Assets/unispace.ttf', 26)
+fontbig = pygame.font.Font('Assets/unispace.ttf', 48)
 
 
 def player(x,y):
@@ -139,25 +141,46 @@ def move_cubes():
         i[0] = i[0] + x_move
         i[1] = i[1] + y_move
 
-def collision_check(x,y):
+def collision_check(x,y,score):
     for i in cubelist:
-        if(x + cube_width - i[0] < 0)  and (x + cube_width - i[0] >= -8):
+        if(x + cube_width - i[0] > 0)  and (x + cube_width - i[0] <= 8):
             if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
-                print("left hit!")
+                crash(score)
 
         if(x - (i[0] + spawnwidth) < 0)  and (x - (i[0] + spawnwidth) >= -8):
             if ((y + cube_height > i[1]) and (y + cube_height < i[1] + spawnheight)) or ((y > i[1]) and (y < i[1] + spawnheight)):
-                print("right hit!")
+                crash(score)
 
-        if(y + cube_height - i[1] < 0)  and (y + cube_height - i[1] >= -8):
+        if(y + cube_height - i[1] > 0)  and (y + cube_height - i[1] <= 8):
             if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
-                print("top hit!")
+                crash(score)
 
         if(y - (i[1] + spawnheight) < 0)  and (y - (i[1] + spawnheight) >= -8):
             if ((x + cube_width > i[0]) and (x + cube_width < i[0] + spawnwidth)) or ((x > i[0]) and (x < i[0] + spawnwidth)):
-                print ("bottom hit!")
+                crash(score)
 
-        
+def crash(score):
+    del cubelist[:]
+    crashmessage = fontbig.render('You Crashed!', True, black, white)
+    textRect = crashmessage.get_rect()
+    textRect.center = (400, 300)
+    gameDisplay.blit(crashmessage, textRect)
+
+    f = open('Assets/high_score.txt', 'r')
+    high_score = int(f.read())
+    f.close()
+    print(score)
+    print(high_score)
+    if score > high_score:
+        f = open('Assets/high_score.txt', 'w')
+        f.truncate(0)
+        f.write(str(score))
+        f.close()
+
+
+    pygame.display.update()
+    time.sleep(2)
+    menu()       
 
 
 
@@ -191,9 +214,14 @@ def menu():
 
     gameExit = False
     
-    text = font.render('High Score: ' + str(zinger), True, black, white)
+    f = open('Assets/high_score.txt', 'r')
+    high_score = int(f.read())
+
+    text = font.render('High Score: ' + str(high_score), True, black, white)
     textRect = text.get_rect()
     textRect.center = (600, 550)
+
+    
 
     while not gameExit:
 
@@ -273,7 +301,7 @@ def game_loop():
             score += 1
             print(score)
         
-        collision_check(x,y)
+        collision_check(x,y,score)
         
         
         y += y_change
@@ -285,6 +313,11 @@ def game_loop():
         player(x,y)
         draw_cubes()
         ticks += 1
+
+        scoredisplay = font.render('Score: ' + str(score), True, black, white)
+        scoreRect = scoredisplay.get_rect()
+        scoreRect.center = (400, 625)
+        gameDisplay.blit(scoredisplay,scoreRect)
                 
         pygame.display.update()
         clock.tick(60)
